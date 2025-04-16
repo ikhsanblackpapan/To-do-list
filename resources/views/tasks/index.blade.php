@@ -159,7 +159,7 @@
         z-index: 1050;
     }
     #taskkuning:hover {
-        background-color: #d39e00 !important;
+        background-color: #d39e00;
         cursor: pointer;
     }
 

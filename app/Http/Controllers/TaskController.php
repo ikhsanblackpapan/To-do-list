@@ -30,33 +30,23 @@ class TaskController extends Controller
         return redirect('/');
     }
 
-    public function update(Request $request, Task $task)
-{
-
-    if ($request->has('toggle_completed')) {
-        $task->completed = !$task->completed;
-        $task->save();
-        return redirect()->back()->with('success', 'Tugas diperbarui.');
-    }
-
-    $task->update($request->all());
-    return redirect()->route('tasks.index')->with('success', 'Tugas diperbarui.');
-
-
-    // Jika request memiliki 'title', berarti berasal dari halaman edit
-    if ($request->has('title')) {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'completed' => 'required|boolean',
-        ]);
-
-        $task->update([
-            'title' => $request->title,
-            'completed' => (bool) $request->completed,
-        ]);
-
-        return redirect()->route('tasks.index')->with('success', 'Tugas berhasil diperbarui.');
-    }
+    public function update(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+    
+        // Toggle status completed
+        if ($request->has('toggle_completed')) {
+            $task->completed = !$task->completed;
+            $task->save();
+    
+            // Hapus subtasks jika task selesai
+            if ($task->completed) {
+                $task->subtasks()->delete();
+            }
+        }
+    
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+    
 
     // Jika request tidak memiliki 'title', berarti berasal dari checkbox
     // $task->update([
